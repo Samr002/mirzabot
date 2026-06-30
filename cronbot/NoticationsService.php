@@ -112,12 +112,12 @@ class ServiceMonitor
             return false;
         }
         $remainingVolume = $dataLimit - $userData['used_traffic'];
-        // Warn when 80% or more of the volume has been consumed
+        // Warn when 80% or more of the volume has been consumed (including limited = 100%+ used)
         $usedPercent = ($userData['used_traffic'] / $dataLimit) * 100;
-        $isVolumeWarning = $usedPercent >= 80 && $remainingVolume > 0 && in_array($userData['status'], ['active', 'Unknown']);
+        $isVolumeWarning = $usedPercent >= 80 && in_array($userData['status'], ['active', 'Unknown', 'limited']);
 
         if ($isVolumeWarning) {
-            $formattedVolume = formatBytes($remainingVolume);
+            $formattedVolume = formatBytes(max(0, $remainingVolume));
             $message = $this->textBotLang['hardcoded']['notifGreeting'] .
                 sprintf($this->textBotLang['hardcoded']['notifServiceName'] ?? "🔖 نام کاربری سرویس: <code>%s</code>\n", htmlspecialchars($username)) .
                 sprintf($this->textBotLang['hardcoded']['notifVolumeRemaining'], $username, $formattedVolume) .
