@@ -4,21 +4,21 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../botapi.php';
 require_once __DIR__ . '/../function.php';
 $textbotlang = languagechange();
-if(!is_file('info'))return;
-if(!is_file('users.json'))return;
+if(!is_file(__DIR__ . '/info'))return;
+if(!is_file(__DIR__ . '/users.json'))return;
 
 
-$userid = json_decode(file_get_contents('users.json'));
-if(is_file('info')){
-$info = json_decode(file_get_contents('info'),true);
+$userid = json_decode(file_get_contents(__DIR__ . '/users.json'));
+if(is_file(__DIR__ . '/info')){
+$info = json_decode(file_get_contents(__DIR__ . '/info'),true);
 }
 $count = 0;
 if(count($userid) == 0){
     if(isset($info['id_admin'])){
     deletemessage($info['id_admin'], $info['id_message']);
     sendmessage($info['id_admin'], $textbotlang['hardcoded']['bulkMessageDone'], null, 'HTML');
-    unlink('info');
-    unlink('users.json');
+    unlink(__DIR__ . '/info');
+    unlink(__DIR__ . '/users.json');
     }
     return;
     
@@ -119,4 +119,4 @@ for ($i = 0; $i < 20; $i++) {
     }
 }
 
-file_put_contents('users.json',json_encode($userid,true));
+file_put_contents(__DIR__ . '/users.json', json_encode($userid, true));
