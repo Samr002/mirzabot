@@ -5,7 +5,7 @@ require_auth();
 
 date_default_timezone_set('Asia/Tehran');
 
-$PAID = "Status IN ('active','end_of_time','end_of_volume','sendedwarn','send_on_hold')";
+$PAID = "Status IN ('active','end_of_time','end_of_volume','sendedwarn','send_on_hold','removeTime','removevolume')";
 
 $jMonthNames = ['', 'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
                 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
@@ -37,7 +37,7 @@ $monthlyData = [];
 try {
     $rows = db_fetchAll($pdo,
         "SELECT time_sell, price_product FROM invoice
-         WHERE $PAID AND time_sell > '0'
+         WHERE $PAID AND time_sell > 0
          ORDER BY time_sell ASC"
     );
     foreach ($rows as $row) {
@@ -381,7 +381,8 @@ include __DIR__ . '/inc/layout_head.php';
         <?php foreach ($byMethod as $m):
           $rev = (int)$m['rev'];
           $pct = $methodTotal > 0 ? round($rev / $methodTotal * 100, 1) : 0;
-          $label = $methodLabels[$m['Payment_Method'] ?? ''] ?? htmlspecialchars($m['Payment_Method'] ?? '—');
+          $pm    = $m['Payment_Method'] ?? '';
+          $label = $methodLabels[$pm] ?? htmlspecialchars($pm ?: '—');
         ?>
         <div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
