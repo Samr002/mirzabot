@@ -3427,6 +3427,7 @@ Remaining volume : %s',
 ',
                 'notifThanks' => 'Thank you for being with us',
                 'notif48hDeleteWarning' => '⚠️ Please note: if the service is not renewed within 48 hours of expiration, the system will automatically delete your service and you will need to purchase a new one through the bot.',
+                'notifServiceName' => "🔖 Service username: <code>%s</code>\n",
                 'notifTimeActionHint' => 'If you wish to renew this service, please proceed through the «%s» section. ',
                 'notifTimeCronTitle' => '📌 Time cron notice
 

@@ -119,6 +119,7 @@ class ServiceMonitor
         if ($isVolumeWarning) {
             $formattedVolume = formatBytes($remainingVolume);
             $message = $this->textBotLang['hardcoded']['notifGreeting'] .
+                sprintf($this->textBotLang['hardcoded']['notifServiceName'] ?? "🔖 نام کاربری سرویس: <code>%s</code>\n", htmlspecialchars($username)) .
                 sprintf($this->textBotLang['hardcoded']['notifVolumeRemaining'], $username, $formattedVolume) .
                 sprintf($this->textBotLang['hardcoded']['notifVolumeActionHint'], $this->text_Purchased_services) .
                 "\n\n" . ($this->textBotLang['hardcoded']['notif48hDeleteWarning'] ?? '') .
@@ -232,6 +233,7 @@ class ServiceMonitor
 
         if ($isTimeWarning) {
             $message = $this->textBotLang['hardcoded']['notifGreeting2'] .
+                sprintf($this->textBotLang['hardcoded']['notifServiceName'] ?? "🔖 نام کاربری سرویس: <code>%s</code>\n", htmlspecialchars($username)) .
                 sprintf($this->textBotLang['hardcoded']['notifTimeRemaining'], $username, $daysRemaining) .
                 sprintf($this->textBotLang['hardcoded']['notifTimeActionHint'], $this->text_Purchased_services) .
                 "\n\n" . ($this->textBotLang['hardcoded']['notif48hDeleteWarning'] ?? '') .
