@@ -117,7 +117,8 @@ class ServiceMonitor
         $isVolumeWarning = $usedPercent >= 80 && in_array($userData['status'], ['active', 'Unknown', 'limited']);
 
         if ($isVolumeWarning) {
-            $formattedVolume = formatBytes(max(0, $remainingVolume));
+            $remaining = max(0, $remainingVolume);
+            $formattedVolume = $remaining > 0 ? formatBytes($remaining) : ($this->textBotLang['hardcoded']['notifVolumeExhausted'] ?? 'صفر');
             $message = $this->textBotLang['hardcoded']['notifGreeting'] .
                 sprintf($this->textBotLang['hardcoded']['notifServiceName'] ?? "🔖 نام کاربری سرویس: <code>%s</code>\n", htmlspecialchars($username)) .
                 sprintf($this->textBotLang['hardcoded']['notifVolumeRemaining'], $username, $formattedVolume) .
