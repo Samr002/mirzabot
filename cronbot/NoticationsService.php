@@ -106,15 +106,23 @@ class ServiceMonitor
 
     private function checkVolumeThreshold($invoice, $user, $userData, $username)
     {
-        $remainingVolume = $userData['data_limit'] - $userData['used_traffic'];
-        $volumeWarningThreshold = $this->setting['volumewarn'] * pow(1024, 3);
-        $isVolumeWarning = $remainingVolume <= $volumeWarningThreshold && $remainingVolume > 0 && in_array($userData['status'], ['active', 'Unknown']);
+        $dataLimit = $userData['data_limit'];
+        // Skip unlimited services (no data cap)
+        if (empty($dataLimit) || $dataLimit <= 0) {
+            return false;
+        }
+        $remainingVolume = $dataLimit - $userData['used_traffic'];
+        // Warn when 80% or more of the volume has been consumed
+        $usedPercent = ($userData['used_traffic'] / $dataLimit) * 100;
+        $isVolumeWarning = $usedPercent >= 80 && $remainingVolume > 0 && in_array($userData['status'], ['active', 'Unknown']);
 
         if ($isVolumeWarning) {
             $formattedVolume = formatBytes($remainingVolume);
             $message = $this->textBotLang['hardcoded']['notifGreeting'] .
                 sprintf($this->textBotLang['hardcoded']['notifVolumeRemaining'], $username, $formattedVolume) .
-                sprintf($this->textBotLang['hardcoded']['notifVolumeActionHint'], $this->text_Purchased_services);
+                sprintf($this->textBotLang['hardcoded']['notifVolumeActionHint'], $this->text_Purchased_services) .
+                "\n\n" . ($this->textBotLang['hardcoded']['notif48hDeleteWarning'] ?? '') .
+                "\n" . $this->textBotLang['hardcoded']['notifThanks'];
             $reportMessage = $this->textBotLang['hardcoded']['notifVolumeCronTitle'] .
                 sprintf($this->textBotLang['hardcoded']['notifServiceUsername'], $username) .
                 sprintf($this->textBotLang['hardcoded']['notifServiceStatus'], $userData['status']) .
@@ -217,7 +225,8 @@ class ServiceMonitor
             return;
         $timeRemaining = $userData['expire'] - time();
         $daysRemaining = intval($timeRemaining / self::SECONDS_PER_DAY);
-        $warningThreshold = intval($this->setting['daywarn']) * self::SECONDS_PER_DAY;
+        // Use at least 3 days as the minimum threshold; respect admin setting if higher
+        $warningThreshold = max(3, intval($this->setting['daywarn'])) * self::SECONDS_PER_DAY;
 
         $isTimeWarning = $timeRemaining <= $warningThreshold && $timeRemaining > 0;
 
@@ -225,7 +234,8 @@ class ServiceMonitor
             $message = $this->textBotLang['hardcoded']['notifGreeting2'] .
                 sprintf($this->textBotLang['hardcoded']['notifTimeRemaining'], $username, $daysRemaining) .
                 sprintf($this->textBotLang['hardcoded']['notifTimeActionHint'], $this->text_Purchased_services) .
-                $this->textBotLang['hardcoded']['notifThanks'];
+                "\n\n" . ($this->textBotLang['hardcoded']['notif48hDeleteWarning'] ?? '') .
+                "\n" . $this->textBotLang['hardcoded']['notifThanks'];
             $reportMessage = $this->textBotLang['hardcoded']['notifTimeCronTitle'] .
                 sprintf($this->textBotLang['hardcoded']['notifServiceUsername2'], $invoice['username']) .
                 sprintf($this->textBotLang['hardcoded']['notifServiceStatus2'], $userData['status']) .
