@@ -112,9 +112,9 @@ class ServiceMonitor
             return false;
         }
         $remainingVolume = $dataLimit - $userData['used_traffic'];
-        // Warn when 80% or more of the volume has been consumed (including limited = 100%+ used)
-        $usedPercent = ($userData['used_traffic'] / $dataLimit) * 100;
-        $isVolumeWarning = $usedPercent >= 80 && in_array($userData['status'], ['active', 'Unknown', 'limited']);
+        // Warn when remaining volume drops to or below the admin-configured threshold (in GB)
+        $warningThresholdBytes = floatval($this->setting['volumewarn']) * 1024 * 1024 * 1024;
+        $isVolumeWarning = $remainingVolume <= $warningThresholdBytes && in_array($userData['status'], ['active', 'Unknown', 'limited']);
 
         if ($isVolumeWarning) {
             $remaining = max(0, $remainingVolume);
@@ -227,8 +227,8 @@ class ServiceMonitor
             return;
         $timeRemaining = $userData['expire'] - time();
         $daysRemaining = intval($timeRemaining / self::SECONDS_PER_DAY);
-        // Use at least 3 days as the minimum threshold; respect admin setting if higher
-        $warningThreshold = max(3, intval($this->setting['daywarn'])) * self::SECONDS_PER_DAY;
+        // Use the admin-configured number of days before expiry to warn the user
+        $warningThreshold = intval($this->setting['daywarn']) * self::SECONDS_PER_DAY;
 
         $isTimeWarning = $timeRemaining <= $warningThreshold && $timeRemaining > 0;
 
@@ -250,9 +250,9 @@ class ServiceMonitor
         }
     }
 
-    private function send_notifactions($invoice, $status_cron_user, $message, $keyboard_active, $bot_token)
+    private function send_notifactions($invoice, $user, $message, $keyboard_active, $bot_token)
     {
-        if (intval($status_cron_user) == 0)
+        if (intval($user['status_cron']) == 0)
             return;
         $keyboard = $this->createExtendServiceKeyboard($invoice['id_invoice']);
         $keyboard = $keyboard_active ? $keyboard : null;
